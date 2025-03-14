@@ -31,11 +31,11 @@ logger = logging.getLogger(__name__)
 
 # 設定Line API密鑰
 # 請替換為您的Channel Access Token和Channel Secret
-LINE_CHANNEL_ACCESS_TOKEN = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
-LINE_CHANNEL_SECRET = os.getenv('LINE_CHANNEL_SECRET', None)
+LINE_CHANNEL_ACCESS_TOKEN = os.environ.get('LINE_CHANNEL_ACCESS_TOKEN', None)
+LINE_CHANNEL_SECRET = os.environ.get('LINE_CHANNEL_SECRET', None)
 
 # 您需要獲取目標群組的ID
-TARGET_GROUP_ID = os.getenv('GROUP_ID')
+TARGET_GROUP_ID = os.environ.get('GROUP_ID')
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
