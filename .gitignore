@@ -1,0 +1,71 @@
+# Python gitignore for Line Bot project
+
+# Virtual Environment
+venv/
+env/
+.env/
+.venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# IDE and Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Local development settings
+.local/
+
+# Sensitive information
+.env
+*.env
+!sample.env
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Heroku and other deployment files
+.profile.d/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Render deployment
+render.yaml
+
+# Dependency directories
+node_modules/
+
+# Secrets and tokens
+*.pem
+*.key
+*.crt
+
+# Backup files
+*.bak
+*.gho
+*.ori
+*.orig
+*.tmp
+
+# Compiled source
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so

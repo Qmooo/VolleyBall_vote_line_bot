@@ -1,0 +1,68 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: line-poll-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongodb_data:/data/db
+    restart: always
+    networks:
+      - app-network
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: line-poll-mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+    restart: always
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+
+  linebot:
+    build: .
+    container_name: line-poll-bot
+    ports:
+      - "7988:7988"
+    environment:
+      - LINE_CHANNEL_ACCESS_TOKEN=8spFSCmhT+garrQKk/uNgQHzw9d8MzwBdDjEttToM5zLS77vgkO6oIQqxU4xa8HwbwxWvWfALfUbI6t5F1g5Z/46Tp7Vw/dM5TbV2DGJCnJdJmksGefno+k5FNF9gq6ahfMurMoYLddhSgfFY1oY8QdB04t89/1O/w1cDnyilFU=
+      - LINE_CHANNEL_SECRET=0847eceafecdeb446e2f9806bdc82137
+      - DEV_USER_IDU68ce63808ed909f103f43ce5dfbfa0f9
+      - GROUP_ID=Ccb074b1ddb18c04cdf5a6d6170751e60
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/
+    command: python -u app.py
+    volumes:
+      - .:/app
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+
+  ngrok:
+    image: wernight/ngrok
+    container_name: line-poll-ngrok
+    ports:
+      - "4040:4040"
+    environment:
+      - NGROK_AUTHTOKEN=2NHvPtNhc5PcqoFiWk40uAZUFLK_4CgWarb88SC3c4aWSgAhp
+    command: ngrok http 7988
+    depends_on:
+      - linebot
+    networks:
+      - app-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  app-network:
+    driver: bridge
