@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class Database:
     def __init__(self):
         # 從環境變量獲取MongoDB連接字串，或使用默認值
-        self.mongo_uri = os.getenv('MONGODB_URI', 'mongodb://admin:password@140.113.110.77:27017/')
+        self.mongo_uri = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
         self.db_name = os.getenv('MONGODB_DB', 'line_poll_db')
         self.client = None
         self.db = None
