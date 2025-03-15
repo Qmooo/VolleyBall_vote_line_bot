@@ -100,12 +100,6 @@ docker-compose up -d
 - `/endpoll [投票ID]` - 結束指定投票，如果不指定ID則結束最新投票
 - `/help` - 顯示幫助信息
 
-### 管理員命令
-
-- `/admin createpoll` - 手動觸發創建投票任務
-- `/admin endpolls` - 手動觸發結束投票任務
-- `/admin status` - 查看系統狀態
-
 ### 投票參與
 
 用戶可通過點擊投票訊息中的按鈕選擇"出席"或"請假"。用戶可以隨時更改自己的選擇。
