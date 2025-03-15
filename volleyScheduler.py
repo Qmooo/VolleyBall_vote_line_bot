@@ -3,6 +3,8 @@ import time
 import threading
 import logging
 from datetime import datetime, timedelta
+from db import Database
+from linebot import LineBotApi
 
 # 設定日誌
 logging.basicConfig(
@@ -22,7 +24,7 @@ create_poll_func = None
 end_poll_func = None
 db = None
 
-def initialize(line_api, group_id, create_func, end_func, db_instance):
+def initialize(line_api : LineBotApi, group_id, create_func, end_func, db_instance : Database):
     """
     初始化排程器
     參數:
@@ -42,38 +44,38 @@ def initialize(line_api, group_id, create_func, end_func, db_instance):
     
     logger.info("排程器已初始化")
 
-def get_next_saturday():
+def get_next_sunday():
     """
-    獲取下一個週六的日期
+    獲取下一個週日的日期
     返回:
-        datetime對象，表示下一個週六的日期
+        datetime對象，表示下一個週日的日期
     """
     today = datetime.now()
-    days_until_saturday = (5 - today.weekday()) % 7
+    days_until_sunday = (5 - today.weekday()) % 7
     
-    if days_until_saturday == 0:
-        days_until_saturday = 7
+    if days_until_sunday == 0:
+        days_until_sunday = 7
     
-    next_saturday = today + timedelta(days=days_until_saturday)
-    next_saturday = next_saturday.replace(hour=0, minute=0, second=0, microsecond=0)
+    next_sunday = today + timedelta(days=days_until_sunday)
+    next_sunday = next_sunday.replace(hour=0, minute=0, second=0, microsecond=0)
     
-    return next_saturday
+    return next_sunday
 
 def create_auto_poll():
-    """自動創建週六出席調查投票"""
+    """自動創建週日出席調查投票"""
     try:
-        next_saturday = get_next_saturday()
-        poll_title = f"{next_saturday.strftime('%m/%d')} 週六活動出席調查"
+        next_sunday = get_next_sunday()
+        poll_title = f"{next_sunday.strftime('%m/%d')} 人數統計"
         
         # 使用提供的創建投票函數
         _ , poll_id = create_poll_func(db, poll_title, target_group_id, line_bot_api)
         
-        logger.info(f"已自動為群組 {target_group_id} 創建週六出席調查投票")
+        logger.info(f"已自動為群組 {target_group_id} 創建週日出席調查投票")
     except Exception as e:
         logger.error(f"自動創建投票時發生錯誤: {e}")
 
 def end_auto_polls():
-    """自動結束所有活動中的投票"""
+    """自動結束所有活動中的投票(限於特定群組)"""
     try:
         # 找出所有活動中的投票
         for poll_id in db.get_active_polls(target_group_id):
@@ -87,7 +89,9 @@ def end_auto_polls():
         logger.error(f"執行自動結束投票任務時發生錯誤: {e}")
 
 def clear_poll_db():
-    """清空投票數據庫"""
+    """
+    清空投票數據庫，刪除過期投票(一個月前)
+    """
     try:
         one_month_ago = datetime.now() - timedelta(days=30)
         for poll in db.get_closed_polls(target_group_id):
@@ -100,10 +104,10 @@ def clear_poll_db():
 
 def setup_scheduler():
     # """設定排程任務"""
-    # # 設定每週六12:00自動開啟投票
-    schedule.every().saturday.at("18:00").do(create_auto_poll)
+    # # 設定每週日18:00自動開啟投票
+    schedule.every().sunday.at("18:00").do(create_auto_poll)
     
-    # # 設定每週五12:00自動結束投票   
+    # # 設定每週六00:00自動結束投票   
     schedule.every().saturday.at("00:00").do(end_auto_polls)
     
     logger.info("已設定排程任務: 週六18:00自動創建投票，週六00:00自動結束投票")
