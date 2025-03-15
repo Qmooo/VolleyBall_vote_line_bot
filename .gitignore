@@ -69,6 +69,3 @@ node_modules/
 *.exe
 *.o
 *.so
-
-# docker-compose
-docker-compose.yml
