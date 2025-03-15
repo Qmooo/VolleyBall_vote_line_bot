@@ -5,6 +5,8 @@ from linebot.models import (
 import json
 from datetime import datetime
 import logging
+from linebot import LineBotApi
+from db import Database
 
 # 設定日誌
 logging.basicConfig(
@@ -21,7 +23,7 @@ logger = logging.getLogger(__name__)
 mapping = {"attend": "✅出席", "absent": "❌請假"}
 
 # 創建投票功能
-def create_poll(db, title, group_id, line_bot_api):
+def create_poll(db:Database, title, group_id, line_bot_api:LineBotApi):
     """創建新投票\n
     參數:
         db: Database對象
@@ -432,13 +434,13 @@ def end_poll(event, poll_id, line_bot_api, db):
                         "type": "text",
                         "text": "✅出席",
                         "weight": "bold",
-                        "size": "sm",
+                        "size": "md",
                         "color": "#28a745"
                     },
                     {
                         "type": "text",
                         "text": "\n".join(attend_users),
-                        "size": "xs",
+                        "size": "md",
                         "wrap": True,
                         "margin": "sm",
                         "color": "#888888"
@@ -467,13 +469,13 @@ def end_poll(event, poll_id, line_bot_api, db):
                         "type": "text",
                         "text": "❌請假",
                         "weight": "bold",
-                        "size": "sm",
+                        "size": "md",
                         "color": "#dc3545"
                     },
                     {
                         "type": "text",
                         "text": "\n".join(absent_users),
-                        "size": "xs",
+                        "size": "md",
                         "wrap": True,
                         "margin": "sm",
                         "color": "#888888"
@@ -569,6 +571,9 @@ def end_poll(event, poll_id, line_bot_api, db):
         db.update_poll_status(poll_id, 'closed')
         
         logger.info(f"結束投票: {poll_id}")
+
+        # 將結果發送給開發者
+        poll_result_to_note(line_bot_api, attend_users)
         return True
     except Exception as e:
         logger.error(f"結束投票時發生錯誤: {e}")
@@ -749,3 +754,22 @@ def send_beautiful_vote_confirmation(user_id, poll_title, pre_option, option, li
     except Exception as e:
         logger.error(f"獲取群組成員時發生錯誤: {e}")
         return []
+    
+def poll_result_to_note(api, attend_users):
+    """
+    將投票結果轉換為文字格式
+    """
+    note = ""
+
+    datetime_str = datetime.now().strftime("%m/%d").replace("(", "")
+    note += f"{datetime_str} 出席表\n"
+    for i, user in enumerate(attend_users):
+        note += f"{i+1}.{user} \n"
+    
+    try:
+        api.push_message(os.getenv('DEV_USER_ID'), TextSendMessage(text=note))
+    except Exception as e:
+        logger.error(f"發送結果到開發者時發生錯誤: {e}")
+        return False
+    
+    

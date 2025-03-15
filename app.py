@@ -4,7 +4,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
-    PostbackEvent,
+    PostbackEvent, JoinEvent, SourceGroup, SourceRoom
 )
 from dotenv import load_dotenv
 import logging
@@ -143,17 +143,18 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text="無效的指令。使用 /help 來獲取幫助信息")
-            )
-    else:
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text="請使用 /help 來獲取幫助信息")
-        )   
+            )  
     
 @handler.add(PostbackEvent)
 def handle_postback_func(event):
    handle_postback(event=event,line_bot_api=line_bot_api,db=db)
 
+@handler.add(JoinEvent)
+def handle_join(event):
+    """處理機器人被加入群組或聊天室的事件"""
+    if isinstance(event.source, SourceGroup):
+        group_id = event.source.group_id
+        logger.info(f"被加入群組 {group_id}")
 
 if __name__ == "__main__":
     
