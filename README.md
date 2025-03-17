@@ -182,7 +182,3 @@ docker-compose up -d app
 ## 貢獻指南
 
 歡迎提交問題報告和改進建議。如果您想貢獻代碼，請先fork此項目，然後提交pull request。
-
-## 許可證
-
-此項目遵循MIT許可證 - 詳情請查看LICENSE文件
